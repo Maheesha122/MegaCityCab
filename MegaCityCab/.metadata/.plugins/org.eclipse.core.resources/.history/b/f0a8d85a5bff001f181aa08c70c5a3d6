@@ -1,0 +1,94 @@
+package servlets;
+
+import dao.UserDAO;
+import model.User;
+import factory.UserFactory;
+import utils.PasswordUtils; // Utility for password hashing
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.regex.Pattern;
+
+@WebServlet("/SignUp")
+public class SignUpServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private final UserDAO userDAO = UserDAO.getInstance();
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+
+        // Extract form data
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String address = request.getParameter("address");
+        String nic = request.getParameter("nic");
+        String email = request.getParameter("email");
+        String telephone = request.getParameter("telephone");
+        String password = request.getParameter("password");
+
+        // Validate input fields
+        if (!isValidEmail(email)) {
+            request.setAttribute("message", "Invalid email format!");
+            request.getRequestDispatcher("/authentication/signUp.jsp").forward(request, response);
+            return;
+        }
+
+        if (!isValidNIC(nic)) {
+            request.setAttribute("message", "Invalid NIC format!");
+            request.getRequestDispatcher("/authentication/signUp.jsp").forward(request, response);
+            return;
+        }
+
+        if (!isValidPhone(telephone)) {
+            request.setAttribute("message", "Invalid phone number format!");
+            request.getRequestDispatcher("/authentication/signUp.jsp").forward(request, response);
+            return;
+        }
+
+        // Check if user already exists
+        if (userDAO.getUserByEmail(email) != null) {
+            request.setAttribute("message", "User with this email already exists!");
+            request.getRequestDispatcher("/authentication/signUp.jsp").forward(request, response);
+            return;
+        }
+
+        // Hash password before storing
+        String hashedPassword = PasswordUtils.hashPassword(password);
+
+        // Create user object
+        User user = UserFactory.createUser(firstName, lastName, address, nic, email, telephone, hashedPassword);
+
+        // Register user
+        if (userDAO.registerUser(user)) {
+            request.setAttribute("message", "Registration Successful!");
+        } else {
+            request.setAttribute("message", "Registration Failed! Please try again.");
+        }
+
+        // Forward the request back to signup.jsp
+        request.getRequestDispatcher("/authentication/signUp.jsp").forward(request, response);
+    }
+
+    // Email validation
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return Pattern.matches(emailRegex, email);
+    }
+
+    // NIC validation (Sri Lankan format example)
+    private boolean isValidNIC(String nic) {
+        String nicRegex = "^[0-9]{9}[VvXx]|[0-9]{12}$"; 
+        return Pattern.matches(nicRegex, nic);
+    }
+
+    // Phone validation
+    private boolean isValidPhone(String phone) {
+        String phoneRegex = "^[0-9]{10}$"; 
+        return Pattern.matches(phoneRegex, phone);
+    }
+}

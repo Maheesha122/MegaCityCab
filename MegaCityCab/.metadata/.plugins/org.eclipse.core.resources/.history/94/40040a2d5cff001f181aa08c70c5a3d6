@@ -1,0 +1,70 @@
+package servlets;
+
+import dao.UserDAO;
+import dao.BookingDAO;
+import model.Booking;
+import model.User;
+
+import java.io.IOException;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+@WebServlet("/MyBookings")
+public class MyBookingsServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    public MyBookingsServlet() {
+        super();
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        
+        if (session == null) {
+            redirectToLogin(response, "No session found.");
+            return;
+        }
+
+        String email = (String) session.getAttribute("user_email");
+        if (email == null || email.trim().isEmpty()) {
+            redirectToLogin(response, "No email found in session.");
+            return;
+        }
+
+        System.out.println("Session email: " + email);  // Debugging
+
+        UserDAO userDAO = UserDAO.getInstance();
+        User user = userDAO.getUserByEmail(email);
+
+        if (user == null) {
+            redirectToLogin(response, "User not found.");
+            return;
+        }
+
+        System.out.println("User found: " + user);
+
+        BookingDAO bookingDAO = BookingDAO.getInstance();
+        List<Booking> bookings = bookingDAO.getBookingsByCustomerID(user.getUserID());
+
+        System.out.println("Bookings fetched: " + (bookings != null ? bookings.size() : 0));
+
+        request.setAttribute("bookings", bookings);
+        request.getRequestDispatcher("/customer/myBookings.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
+    }
+
+    private void redirectToLogin(HttpServletResponse response, String message) throws IOException {
+        System.out.println(message + " Redirecting to login page.");
+        response.sendRedirect("authentication/signIn.jsp");
+    }
+}

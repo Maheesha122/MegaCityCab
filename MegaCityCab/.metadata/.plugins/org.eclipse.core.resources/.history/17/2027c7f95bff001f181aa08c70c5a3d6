@@ -1,0 +1,28 @@
+package servlets;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+
+@WebServlet("/SignOut")
+public class SignOutServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false); // Get existing session without creating a new one
+
+        if (session != null) {
+            System.out.println("Signing out user: " + session.getAttribute("user_email")); // Debugging
+            session.removeAttribute("user_email"); // Remove user-specific attributes
+            session.invalidate(); // Invalidate session
+        }
+
+        // Redirect to home page with session tracking prevention
+        response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + "/customer/home.jsp"));
+    }
+}

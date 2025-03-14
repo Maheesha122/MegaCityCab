@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mega City Cab</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .logo {
+            text-align: center;
+        }
+
+        .logo img {
+            height: 120px;
+            width: auto;
+        }
+
+        .login-container {
+            background-color: #FFD700;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-container h2 {
+            text-align: center;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        #loginForm {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #loginForm input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #loginForm button {
+            padding: 12px 20px;
+            background-color: #000000;
+            color: #FFD700;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .signup-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .signup-text a {
+            color: #000000;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo">
+        <img src="images/logo.png" alt="Mega City Cab Logo">
+    </div>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+        <p class="signup-text">New Here? <a href="signUp.jsp">Sign Up</a></p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("Login script loaded.");
+
+            document.getElementById("loginForm").addEventListener("submit", function (event) {
+                event.preventDefault(); // Prevent default form submission
+                
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value.trim();
+
+                console.log("Email:", email, "Password:", password);
+
+                if (email === "admin@example.com" && password === "admin123") {
+                    sessionStorage.setItem("user_email", email);
+                    sessionStorage.setItem("user_role", "admin");
+
+                    console.log("Redirecting to admin dashboard...");
+                    window.location.assign("admin/dashboard.jsp"); 
+                } else if (email === "customer@example.com" && password === "customer123") {
+                    sessionStorage.setItem("user_email", email);
+                    sessionStorage.setItem("user_role", "customer");
+
+                    console.log("Redirecting to customer home...");
+                    window.location.assign("customer/home.jsp"); 
+                } else {
+                    console.error("Invalid login attempt.");
+                    alert("Login failed. Please check your email and password.");
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
