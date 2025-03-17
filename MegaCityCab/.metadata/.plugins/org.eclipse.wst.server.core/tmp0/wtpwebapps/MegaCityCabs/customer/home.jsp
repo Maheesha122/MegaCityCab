@@ -27,18 +27,18 @@
     }
 
     .background-image {
-        width: 100%;
+        width: 100%; /* Make main image fit the screen width */
         height: auto;
         display: block;
     }
 
     .overlay {
         position: absolute;
-        top: 40%;
-        left: 30%;
+        top: 40%; /* Adjusted to move text higher */
+        left: 30%; /* Adjusted to move text to the left */
         transform: translate(-50%, -50%);
-        background-color: rgba(0, 0, 0, 0.7);
-        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.7); /* Black rectangle with some transparency */
+       20px;
         border-radius: 10px;
         text-align: center;
     }
@@ -60,7 +60,7 @@
     }
 
     .vehicles-image {
-        width: 100%;
+        width: 100%; /* Make vehicle image fit the screen width */
         height: auto;
         display: block;
     }
@@ -70,23 +70,23 @@
 
     <%@ include file="navBar.jsp" %>
 
-    <!-- Main Image Section -->
+    <!-- Display main.png as a background image -->
     <div class="image-container">
-        <img src="../images/main.jpg" alt="Main Image" class="background-image">
+        <img src="../images/main.jpeg" alt="Main Image" class="background-image">
         
-        <!-- Overlay Text and Button -->
+        <!-- Overlay with text and link -->
         <div class="overlay">
             <h1>Enjoy a reliable journey with Mega City Cabs</h1>
-            <a href="<%= session.getAttribute("user_email") != null ? "../booking" : "../authentication/signIn.jsp" %>">
-                BOOK NOW
-            </a>
+            <a href="${sessionScope.user_email != null ?  "../booking" : '../authentication/signIn.jsp'}">BOOK NOW</a>
         </div>
     </div>
 
-    <!-- Vehicles Image Section -->
+    <!-- Display vehicles_image.png from the images folder -->
     <div class="image-container">
         <img src="../images/vehicles_image.png" alt="Vehicles Image" class="vehicles-image">
     </div>
+
+    <!-- Rest of your home page content -->
 
 </body>
 </html>

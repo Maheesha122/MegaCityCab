@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,8 +20,6 @@
             align-items: center;
             min-height: 100vh;
         }
-  <div class="image-container">
-        <img src="../images/logo.png" alt="logo Image" class="logo-image">
 
         /* Logo Styles */
         .logo {
@@ -122,14 +122,14 @@
 
     <!-- Logo -->
     <div class="logo">
-        <img src="images/logo.png" alt="Mega City Cab Logo">
+        <img src="${pageContext.request.contextPath}/images/logo.png" alt="Mega City Cab Logo">
     </div>
 
     <!-- Signup Container -->
     <div class="signup-container">
         <h2>Sign Up</h2>
 
-        <form id="signupForm">
+        <form action="../SignUp" method="post">
             <!-- First Row: First Name and Last Name -->
             <div class="form-row">
                 <div class="form-group">
@@ -180,57 +180,28 @@
             <button type="submit">Sign Up</button>
         </form>
         
-        <p class="signin-text">Already a member? <a href="signIn.html">Sign In</a></p>
+        <p class="signin-text">Already a member? <a href="signIn.jsp">Sign In</a></p>
     </div>
-
-    <script>
-        // Simulate registration logic
-        document.getElementById("signupForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent the default form submission
-
-            // Get form data
-            const firstName = document.getElementById("firstName").value;
-            const lastName = document.getElementById("lastName").value;
-            const email = document.getElementById("email").value;
-            const nic = document.getElementById("nic").value;
-            const telephone = document.getElementById("telephone").value;
-            const address = document.getElementById("address").value;
-            const password = document.getElementById("password").value;
-
-            // Simulate successful registration
-            if (email && password) {
-                // Store user data (in a real-world application, this should be sent to the backend)
-                localStorage.setItem('user', JSON.stringify({
-                    firstName,
-                    lastName,
-                    email,
-                    nic,
-                    telephone,
-                    address,
-                    password
-                }));
-
-                // Display success message using SweetAlert
+    
+    <% if (request.getAttribute("message") != null) { %>
+        <script>
+            <% if ("Registration Successful!".equals(request.getAttribute("message"))) { %>
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Registration Successful!',
-                    text: 'You have been successfully registered.',
+                    icon: "success",
+                    title: "Registration Successful!",
+                    text: "Employee has been registered.",
                     timer: 2500,
                     showConfirmButton: false
-                }).then(() => {
-                    // Redirect to the sign-in page after success
-                    window.location.href = 'signIn.jsp';
                 });
-            } else {
-                // Display failure message using SweetAlert
+            <% } else { %>
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Registration Failed!',
-                    text: 'Please ensure all fields are filled out correctly.',
-                    confirmButtonColor: '#d33'
+                    icon: "error",
+                    title: "Registration Failed!",
+                    text: "<%= request.getAttribute("message") %>",
+                    confirmButtonColor: "#d33"
                 });
-            }
-        });
-    </script>
+            <% } %>
+        </script>
+    <% } %>
 </body>
 </html>

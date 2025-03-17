@@ -1,3 +1,4 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,15 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking</title>
     <style>
-        /* General styling */
         body {
             font-family: Arial, sans-serif;
-            background-color: #000;  /* Black background */
+            background-color: #f0f8ff;  /* Light blue background */
             margin: 0;
             padding: 0;
-            color: #fff; /* White text color */
+            color: #003366;  /* Dark blue text */
         }
-        /* Container to center the content */
+
         .container {
             width: 70%;
             margin: 0 auto;
@@ -22,79 +22,120 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
+
         h1 {
-            color: #333;
+            color: #003366;  /* Dark blue */
             text-align: center;
             margin-bottom: 20px;
         }
+
         label {
             font-size: 16px;
             margin-bottom: 5px;
             display: inline-block;
-            color: #333;
+            color: #003366;  /* Dark blue text */
         }
+
         select, input[type="date"], input[type="time"] {
             width: 100%;
             padding: 10px;
             margin: 10px 0 20px;
-            border: 2px solid #ccc;
+            border: 2px solid #003366;  /* Dark blue border */
             border-radius: 5px;
             background-color: #fff;
         }
+
         button {
             width: 100%;
             padding: 15px;
-            background-color: #000; /* Black button */
-            color: #fff;
+            background-color: #003366;  /* Dark blue button */
+            color: #ffcc00;  /* Yellow text */
             border: none;
             border-radius: 5px;
             font-size: 18px;
             cursor: pointer;
         }
+
         button:hover {
-            background-color: #333; /* Darker shade of black on hover */
+            background-color: #001f3d;  /* Darker shade of blue on hover */
         }
+
         .form-group {
             margin-bottom: 20px;
         }
+
         .dropdown-container {
             display: flex;
             justify-content: space-between;
             gap: 10px;
         }
+
         .dropdown-container select {
-            width: 48%;
+            width: 48%;  /* Adjust width to fit side by side */
         }
+
         .date-time-container {
             display: flex;
             justify-content: space-between;
             gap: 10px;
         }
+
         .date-time-container input {
-            width: 48%;
+            width: 48%;  /* Adjust width to fit side by side */
         }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #003366;  /* Dark blue text */
+        }
+
+        /* Styling for the fields when there's a value */
+        .field-label {
+            font-weight: bold;
+        }
+
+        .field-container {
+            margin-bottom: 15px;
+        }
+
     </style>
 </head>
 <body>
-    
+    <%@ include file="navBar.jsp" %>
+
     <div class="container">
         <h1>Booking Page</h1>
 
-        <form id="bookingForm">
+        <form action="${pageContext.request.contextPath}/booking" method="post">
             <div class="form-group">
                 <label for="vehicle">Select Vehicle:</label>
-                <select id="vehicleType" name="vehicleType"></select>
+                <select id="vehicleType" name="vehicleType">
+                    <c:forEach var="vehicleName" items="${uniqueVehicleNames}">
+                        <option value="${vehicleName}">${vehicleName}</option>
+                    </c:forEach>
+                </select>
             </div>
 
             <div class="form-group dropdown-container">
                 <div>
                     <label for="pickup">Pickup Location:</label>
-                    <select id="pickup" name="pickup"></select>
+                    <select id="pickup" name="pickup">
+                        <c:forEach var="pickupEntry" items="${distances}">
+                            <option value="${pickupEntry.key}">${pickupEntry.key}</option>
+                        </c:forEach>
+                    </select>
                 </div>
 
                 <div>
                     <label for="drop">Drop Location:</label>
-                    <select id="drop" name="drop"></select>
+                    <select id="drop" name="drop">
+                        <c:forEach var="pickupEntry" items="${distances}">
+                            <c:forEach var="dropEntry" items="${pickupEntry.value}">
+                                <option value="${dropEntry.key}">${dropEntry.key} - ${dropEntry.value} km</option>
+                            </c:forEach>
+                        </c:forEach>
+                    </select>
                 </div>
             </div>
 
@@ -113,81 +154,5 @@
             <button type="submit">Calculate Fare</button>
         </form>
     </div>
-
-    <script>
-        // Mock data (Replace with API call or dynamic data)
-        const uniqueVehicleNames = ["Car", "Van", "Bus", "Bike"];
-        const distances = {
-            "Colombo": {"Kandy": 115, "Galle": 130},
-            "Kandy": {"Colombo": 115, "Nuwara Eliya": 75},
-            "Galle": {"Colombo": 130, "Matara": 40}
-        };
-
-        // Populate vehicle dropdown
-        function populateVehicles() {
-            const vehicleSelect = document.getElementById("vehicleType");
-            uniqueVehicleNames.forEach(vehicle => {
-                let option = document.createElement("option");
-                option.value = vehicle;
-                option.textContent = vehicle;
-                vehicleSelect.appendChild(option);
-            });
-        }
-
-        // Populate pickup locations
-        function populatePickupLocations() {
-            const pickupSelect = document.getElementById("pickup");
-            Object.keys(distances).forEach(location => {
-                let option = document.createElement("option");
-                option.value = location;
-                option.textContent = location;
-                pickupSelect.appendChild(option);
-            });
-        }
-
-        // Populate drop locations based on selected pickup
-        function populateDropLocations() {
-            const pickup = document.getElementById("pickup").value;
-            const dropSelect = document.getElementById("drop");
-            dropSelect.innerHTML = ""; // Clear previous options
-
-            if (distances[pickup]) {
-                Object.entries(distances[pickup]).forEach(([location, distance]) => {
-                    let option = document.createElement("option");
-                    option.value = location;
-                    option.textContent = `${location} - ${distance} km`;
-                    dropSelect.appendChild(option);
-                });
-            }
-        }
-
-        // Handle form submission
-        document.getElementById("bookingForm").addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            const formData = {
-                vehicleType: document.getElementById("vehicleType").value,
-                pickup: document.getElementById("pickup").value,
-                drop: document.getElementById("drop").value,
-                date: document.getElementById("date").value,
-                time: document.getElementById("time").value
-            };
-
-            // Store data for next page (optional)
-            localStorage.setItem("bookingData", JSON.stringify(formData));
-
-            // Redirect to confirmation page
-            window.location.href = "confirm_booking.jsp";
-        });
-
-        // Initialize dropdowns
-        populateVehicles();
-        populatePickupLocations();
-        populateDropLocations();
-
-        // Update drop locations when pickup changes
-        document.getElementById("pickup").addEventListener("change", populateDropLocations);
-    </script>
-
 </body>
 </html>

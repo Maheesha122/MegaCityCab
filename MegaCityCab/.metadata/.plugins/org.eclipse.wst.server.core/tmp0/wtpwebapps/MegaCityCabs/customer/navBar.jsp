@@ -1,8 +1,10 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Navigation Bar</title>
+<title>Insert title here</title>
 <style>
     /* Internal CSS for the navbar */
     body {
@@ -11,7 +13,7 @@
     }
 
     .navbar {
-        background-color: black;
+        background-color: #007bff; /* Blue navbar */
         overflow: hidden;
         display: flex;
         align-items: center;
@@ -20,21 +22,27 @@
     }
 
     .navbar a {
-        color: #FFD700; /* Darker yellow */
+        color: #ffffff; /* White text for contrast */
         text-align: center;
-        padding: 20px 25px; /* Increased spacing */
+        padding: 15px 20px; /* Adjusted spacing */
         text-decoration: none;
         font-size: 17px;
-        font-weight: bold; /* Stronger links */
-        text-transform: uppercase; /* Uppercase text */
+        font-weight: bold;
+        text-transform: uppercase;
+        transition: background 0.3s ease;
+    }
+
+    .navbar a:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+        border-radius: 5px;
     }
 
     .navbar a.logo {
-        padding: 5px; /* Adjust padding for the logo */
+        padding: 5px;
     }
 
     .navbar a.logo img {
-        height: 80px; /* Larger logo */
+        height: 70px; /* Slightly smaller logo for better fit */
         vertical-align: middle;
     }
 
@@ -48,31 +56,36 @@
 
     <!-- Navbar -->
     <div class="navbar">
-        <!-- Logo linking to home page -->
-        <a href="home.html" class="logo">
-            <img src="../images/logo.png" alt="Logo">
+        <!-- Logo linking to home.jsp -->
+        <a href="home.jsp" class="logo">
+<img src="${pageContext.request.contextPath}/images/logo.jpeg" alt="Logo">
         </a>
 
         <!-- Navbar links aligned to the right -->
         <div class="nav-links">
-            <a href="home.jsp">Home</a>
-            <a href="booking.jsp">Booking</a>
-            <a href="help.jsp">Help</a>
-            <a href="myBookings.jsp">My Bookings</a>
-            <a href="../authentication/signIn.jsp" id="authLink">Login</a>
+            <a href="${pageContext.request.contextPath}/customer/home.jsp">Home</a>
+            <a href="${pageContext.request.contextPath}/booking">Booking</a>
+			<a href="${pageContext.request.contextPath}/customer/help.jsp">Help</a>
+            <a href="${pageContext.request.contextPath}/MyBookings">My Bookings</a>
+
+            <!-- Check if user is logged in -->
+            <% 
+                // Check if the user is logged in (e.g., by checking a session attribute)
+                String loggedInUser = (String) session.getAttribute("user_email");
+                if (loggedInUser != null) {
+                    // User is logged in, display Logout link
+            %>
+                    <a href="${pageContext.request.contextPath}/SignOut">Logout</a>
+            <%
+                } else {
+                    // User is not logged in, display Login link
+            %>
+                    <a href="../authentication/signIn.jsp">Login</a>
+            <%
+                }
+            %>
         </div>
     </div>
-
-    <script>
-        // Simulated session data (Replace with actual authentication logic)
-        const loggedInUser = localStorage.getItem("user_email");
-        const authLink = document.getElementById("authLink");
-
-        if (loggedInUser) {
-            authLink.textContent = "Logout";
-            authLink.href = "signout.jsp";
-        }
-    </script>
 
 </body>
 </html>

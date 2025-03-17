@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking</title>
+    <style>
+        /* General styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;  /* Black background */
+            margin: 0;
+            padding: 0;
+            color: #fff; /* White text color */
+        }
+        /* Container to center the content */
+        .container {
+            width: 70%;
+            margin: 0 auto;
+            background-color: #ffcc00;  /* Yellow background */
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 16px;
+            margin-bottom: 5px;
+            display: inline-block;
+            color: #333;
+        }
+        select, input[type="date"], input[type="time"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #000; /* Black button */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #333; /* Darker shade of black on hover */
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .dropdown-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .dropdown-container select {
+            width: 48%;
+        }
+        .date-time-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .date-time-container input {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <h1>Booking Page</h1>
+
+        <form id="bookingForm">
+            <div class="form-group">
+                <label for="vehicle">Select Vehicle:</label>
+                <select id="vehicleType" name="vehicleType"></select>
+            </div>
+
+            <div class="form-group dropdown-container">
+                <div>
+                    <label for="pickup">Pickup Location:</label>
+                    <select id="pickup" name="pickup"></select>
+                </div>
+
+                <div>
+                    <label for="drop">Drop Location:</label>
+                    <select id="drop" name="drop"></select>
+                </div>
+            </div>
+
+            <div class="form-group date-time-container">
+                <div>
+                    <label for="date">Select Date:</label>
+                    <input type="date" id="date" name="date">
+                </div>
+
+                <div>
+                    <label for="time">Select Time:</label>
+                    <input type="time" id="time" name="time">
+                </div>
+            </div>
+
+            <button type="submit">Calculate Fare</button>
+        </form>
+    </div>
+
+    <script>
+        // Mock data (Replace with API call or dynamic data)
+        const uniqueVehicleNames = ["Car", "Van", "Bus", "Bike"];
+        const distances = {
+            "Colombo": {"Kandy": 115, "Galle": 130},
+            "Kandy": {"Colombo": 115, "Nuwara Eliya": 75},
+            "Galle": {"Colombo": 130, "Matara": 40}
+        };
+
+        // Populate vehicle dropdown
+        function populateVehicles() {
+            const vehicleSelect = document.getElementById("vehicleType");
+            uniqueVehicleNames.forEach(vehicle => {
+                let option = document.createElement("option");
+                option.value = vehicle;
+                option.textContent = vehicle;
+                vehicleSelect.appendChild(option);
+            });
+        }
+
+        // Populate pickup locations
+        function populatePickupLocations() {
+            const pickupSelect = document.getElementById("pickup");
+            Object.keys(distances).forEach(location => {
+                let option = document.createElement("option");
+                option.value = location;
+                option.textContent = location;
+                pickupSelect.appendChild(option);
+            });
+        }
+
+        // Populate drop locations based on selected pickup
+        function populateDropLocations() {
+            const pickup = document.getElementById("pickup").value;
+            const dropSelect = document.getElementById("drop");
+            dropSelect.innerHTML = ""; // Clear previous options
+
+            if (distances[pickup]) {
+                Object.entries(distances[pickup]).forEach(([location, distance]) => {
+                    let option = document.createElement("option");
+                    option.value = location;
+                    option.textContent = `${location} - ${distance} km`;
+                    dropSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Handle form submission
+        document.getElementById("bookingForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = {
+                vehicleType: document.getElementById("vehicleType").value,
+                pickup: document.getElementById("pickup").value,
+                drop: document.getElementById("drop").value,
+                date: document.getElementById("date").value,
+                time: document.getElementById("time").value
+            };
+
+            // Store data for next page (optional)
+            localStorage.setItem("bookingData", JSON.stringify(formData));
+
+            // Redirect to confirmation page
+            window.location.href = "confirm_booking.jsp";
+        });
+
+        // Initialize dropdowns
+        populateVehicles();
+        populatePickupLocations();
+        populateDropLocations();
+
+        // Update drop locations when pickup changes
+        document.getElementById("pickup").addEventListener("change", populateDropLocations);
+    </script>
+
+</body>
+</html>

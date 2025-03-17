@@ -1,111 +1,64 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="dao.BookingDAO, model.Booking, java.util.List, dao.VehicleDAO, model.Vehicle, dao.DriverDAO, model.Driver" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Bookings</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            fetchBookings();
-        });
-
-        // Fetch all bookings
-        function fetchBookings() {
-            fetch('/api/bookings')  // Example endpoint to fetch bookings
-                .then(response => response.json())
-                .then(data => {
-                    renderBookings(data);
-                })
-                .catch(error => console.error('Error fetching bookings:', error));
-        }
-
-        // Render bookings dynamically using JavaScript
-        function renderBookings(bookings) {
-            const pendingTableBody = document.querySelector('#pendingBookings tbody');
-            const bookedTableBody = document.querySelector('#bookedBookings tbody');
-            const completedTableBody = document.querySelector('#completedBookings tbody');
-            const cancelledTableBody = document.querySelector('#cancelledBookings tbody');
-
-            bookings.forEach(booking => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${booking.bookingID}</td>
-                    <td>${booking.customerID}</td>
-                    <td>${booking.vehicleType}</td>
-                    <td>${booking.vehicleID}</td>
-                    <td>${booking.driverID}</td>
-                    <td>${booking.rentalDate}</td>
-                    <td>${booking.rentalTime}</td>
-                    <td>${booking.pickupLocation}</td>
-                    <td>${booking.returnLocation}</td>
-                    <td>Rs. ${booking.bill}</td>
-                    <td>
-                        <button class="btn btn-primary btn-sm" onclick="openManagePopup(${booking.bookingID})">Manage</button>
-                        <button class="btn btn-danger btn-sm" onclick="cancelBooking(${booking.bookingID})">Cancel</button>
-                    </td>
-                `;
-                if (booking.status === "pending") {
-                    pendingTableBody.appendChild(row);
-                } else if (booking.status === "booked") {
-                    bookedTableBody.appendChild(row);
-                } else if (booking.status === "completed") {
-                    completedTableBody.appendChild(row);
-                } else if (booking.status === "cancelled") {
-                    cancelledTableBody.appendChild(row);
-                }
-            });
-        }
-
-        // Open the modal to manage the booking
         function openManagePopup(bookingID) {
+            // Pass the booking ID to the popup
             document.getElementById('popup-bookingID').value = bookingID;
-            fetch(`/api/vehicles`)
-                .then(response => response.json())
-                .then(data => {
-                    const vehicleSelect = document.getElementById('vehicleID');
-                    data.forEach(vehicle => {
-                        const option = document.createElement('option');
-                        option.value = vehicle.vehicleID;
-                        option.textContent = `${vehicle.vehicleID} - ${vehicle.vehicleName}`;
-                        vehicleSelect.appendChild(option);
-                    });
-                });
-
-            fetch(`/api/drivers`)
-                .then(response => response.json())
-                .then(data => {
-                    const driverSelect = document.getElementById('driverID');
-                    data.forEach(driver => {
-                        const option = document.createElement('option');
-                        option.value = driver.driverID;
-                        option.textContent = `${driver.driverID} - ${driver.driverName}`;
-                        driverSelect.appendChild(option);
-                    });
-                });
-
-            const myModal = new bootstrap.Modal(document.getElementById('manageModal'));
+            var myModal = new bootstrap.Modal(document.getElementById('manageModal'));
             myModal.show();
         }
-
-        // Cancel the booking
-        function cancelBooking(bookingID) {
-            fetch(`/api/manageBooking`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ bookingID, newStatus: 'Cancelled' })
-            })
-            .then(response => response.json())
-            .then(() => {
-                alert('Booking Cancelled');
-                fetchBookings();  // Reload bookings
-            })
-            .catch(error => console.error('Error cancelling booking:', error));
-        }
     </script>
+    <style>
+        body {
+            background-color: #e9f7df; /* Light green background */
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+        }
+        h2 {
+            color: #2e8b57; /* Dark green color */
+        }
+        h3 {
+            color: #4caf50; /* Lighter green color */
+        }
+        table th {
+            background-color: #a5d6a7; /* Light green header */
+        }
+        .table-warning {
+            background-color: #dcedc8; /* Very light green for pending bookings */
+        }
+        .table-success {
+            background-color: #c8e6c9; /* Very light green for booked bookings */
+        }
+        .table-info {
+            background-color: #b2dfdb; /* Light teal for completed bookings */
+        }
+        .table-danger {
+            background-color: #ffccbc; /* Light red for cancelled bookings */
+        }
+        .btn-primary {
+            background-color: #388e3c; /* Darker green for primary actions */
+        }
+        .btn-danger {
+            background-color: #d32f2f; /* Red for cancel button */
+        }
+        .btn-success {
+            background-color: #388e3c; /* Green for booking action */
+        }
+        .btn-secondary {
+            background-color: #607d8b; /* Gray for canceling the modal */
+        }
+    </style>
 </head>
 <body>
     <%@ include file="navBar.jsp" %>
@@ -115,7 +68,7 @@
 
         <!-- Pending Bookings Table -->
         <h3 class="mt-4">Pending Bookings</h3>
-        <table class="table table-striped table-bordered" id="pendingBookings">
+        <table class="table table-striped table-bordered">
             <thead class="table-warning">
                 <tr>
                     <th>Booking ID</th>
@@ -132,15 +85,213 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Bookings will be dynamically loaded here -->
+                <%
+                    BookingDAO bookingDAO = BookingDAO.getInstance();
+                    List<Booking> pendingBookings = bookingDAO.getPendingBookings();
+
+                    if (pendingBookings.isEmpty()) {
+                %>
+                        <tr>
+                            <td colspan="12" class="text-center">No pending bookings available.</td>
+                        </tr>
+                <%
+                    } else {
+                        for (Booking booking : pendingBookings) {
+                %>
+                        <tr>
+                            <td><%= booking.getBookingID() %></td>
+                            <td><%= booking.getCustomerID() %></td>
+                            <td><%= booking.getVehicleType() %></td>
+                            <td><%= booking.getVehicleID() %></td>
+                            <td><%= booking.getDriverID() %></td>
+                            <td><%= booking.getRentalDate() %></td>
+                            <td><%= booking.getRentalTime() %></td>
+                            <td><%= booking.getPickupLocation() %></td>
+                            <td><%= booking.getReturnLocation() %></td>
+                            <td>Rs. <%= booking.getBill() %></td>
+                            <td>
+                                <div style="display: flex; gap: 10px;">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="openManagePopup(<%= booking.getBookingID() %>)">Manage</button>
+                                    <form action="${pageContext.request.contextPath}/ManageBooking" method="post" style="display:inline;">
+                                        <input type="hidden" name="bookingID" value="<%= booking.getBookingID() %>">
+                                        <input type="hidden" name="newStatus" value="Cancelled">
+                                        <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                <%
+                        }
+                    }
+                %>
             </tbody>
         </table>
 
-        <!-- More tables (Booked, Completed, Cancelled) go here with the same structure -->
+        <!-- Booked Bookings Table -->
+        <h3 class="mt-4">Booked Bookings</h3>
+        <table class="table table-striped table-bordered">
+            <thead class="table-success">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Customer ID</th>
+                    <th>Vehicle Type</th>
+                    <th>Vehicle ID</th>
+                    <th>Driver ID</th>
+                    <th>Rental Date</th>
+                    <th>Rental Time</th>
+                    <th>Pickup Location</th>
+                    <th>Drop Location</th>
+                    <th>Bill</th>
+                    <th>Payment Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <%
+                    List<Booking> bookedBookings = bookingDAO.getBookedBookings();
 
+                    if (bookedBookings.isEmpty()) {
+                %>
+                        <tr>
+                            <td colspan="12" class="text-center">No booked bookings available.</td>
+                        </tr>
+                <%
+                    } else {
+                        for (Booking booking : bookedBookings) {
+                %>
+                        <tr>
+                            <td><%= booking.getBookingID() %></td>
+                            <td><%= booking.getCustomerID() %></td>
+                            <td><%= booking.getVehicleType() %></td>
+                            <td><%= booking.getVehicleID() %></td>
+                            <td><%= booking.getDriverID() %></td>
+                            <td><%= booking.getRentalDate() %></td>
+                            <td><%= booking.getRentalTime() %></td>
+                            <td><%= booking.getPickupLocation() %></td>
+                            <td><%= booking.getReturnLocation() %></td>
+                            <td>Rs. <%= booking.getBill() %></td>
+                            <td>
+                                <div class="d-flex justify-content-between">
+                                    <form action="${pageContext.request.contextPath}/ManageBooking" method="post" style="display:inline;">
+                                        <input type="hidden" name="bookingID" value="<%= booking.getBookingID() %>">
+                                        <input type="hidden" name="newStatus" value="Cancelled">
+                                        <button type="submit" class="btn btn-danger">❌</button>
+                                    </form>
+                                    <form action="${pageContext.request.contextPath}/ManageBooking" method="post" style="display:inline;">
+                                        <input type="hidden" name="bookingID" value="<%= booking.getBookingID() %>">
+                                        <input type="hidden" name="newStatus" value="Completed">
+                                        <button type="submit" class="btn btn-success">✅</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                <%
+                        }
+                    }
+                %>
+            </tbody>
+        </table>
+
+        <!-- Completed Bookings Table -->
+        <h3 class="mt-4">Completed Bookings</h3>
+        <table class="table table-striped table-bordered">
+            <thead class="table-info">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Customer ID</th>
+                    <th>Vehicle Type</th>
+                    <th>Vehicle ID</th>
+                    <th>Driver ID</th>
+                    <th>Rental Date</th>
+                    <th>Rental Time</th>
+                    <th>Pickup Location</th>
+                    <th>Drop Location</th>
+                    <th>Bill</th>
+                </tr>
+            </thead>
+            <tbody>
+                <%
+                    List<Booking> completedBookings = bookingDAO.getCompletedBookings();
+
+                    if (completedBookings.isEmpty()) {
+                %>
+                        <tr>
+                            <td colspan="11" class="text-center">No completed bookings available.</td>
+                        </tr>
+                <%
+                    } else {
+                        for (Booking booking : completedBookings) {
+                %>
+                        <tr>
+                            <td><%= booking.getBookingID() %></td>
+                            <td><%= booking.getCustomerID() %></td>
+                            <td><%= booking.getVehicleType() %></td>
+                            <td><%= booking.getVehicleID() %></td>
+                            <td><%= booking.getDriverID() %></td>
+                            <td><%= booking.getRentalDate() %></td>
+                            <td><%= booking.getRentalTime() %></td>
+                            <td><%= booking.getPickupLocation() %></td>
+                            <td><%= booking.getReturnLocation() %></td>
+                            <td>Rs. <%= booking.getBill() %></td>
+                        </tr>
+                <%
+                        }
+                    }
+                %>
+            </tbody>
+        </table>
+
+        <!-- Cancelled Bookings Table -->
+        <h3 class="mt-4">Cancelled Bookings</h3>
+        <table class="table table-striped table-bordered">
+            <thead class="table-danger">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Customer ID</th>
+                    <th>Vehicle Type</th>
+                    <th>Vehicle ID</th>
+                    <th>Driver ID</th>
+                    <th>Rental Date</th>
+                    <th>Rental Time</th>
+                    <th>Pickup Location</th>
+                    <th>Drop Location</th>
+                    <th>Bill</th>
+                </tr>
+            </thead>
+            <tbody>
+                <%
+                    List<Booking> cancelledBookings = bookingDAO.getCancelledBookings();
+
+                    if (cancelledBookings.isEmpty()) {
+                %>
+                        <tr>
+                            <td colspan="11" class="text-center">No cancelled bookings available.</td>
+                        </tr>
+                <%
+                    } else {
+                        for (Booking booking : cancelledBookings) {
+                %>
+                        <tr>
+                            <td><%= booking.getBookingID() %></td>
+                            <td><%= booking.getCustomerID() %></td>
+                            <td><%= booking.getVehicleType() %></td>
+                            <td><%= booking.getVehicleID() %></td>
+                            <td><%= booking.getDriverID() %></td>
+                            <td><%= booking.getRentalDate() %></td>
+                            <td><%= booking.getRentalTime() %></td>
+                            <td><%= booking.getPickupLocation() %></td>
+                            <td><%= booking.getReturnLocation() %></td>
+                            <td>Rs. <%= booking.getBill() %></td>
+                        </tr>
+                <%
+                        }
+                    }
+                %>
+            </tbody>
+        </table>
     </div>
-
-    <!-- Popup Modal for Managing Booking -->
+    
+    <!-- Modal for Managing Booking -->
     <div class="modal fade" id="manageModal" tabindex="-1" aria-labelledby="manageModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -149,31 +300,22 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="manageBookingForm" method="post">
-                        <input type="hidden" id="popup-bookingID" name="bookingID">
+                    <form method="POST" action="${pageContext.request.contextPath}/ManageBooking">
+                        <input type="hidden" name="bookingID" id="popup-bookingID">
                         <div class="mb-3">
-                            <label for="vehicleID" class="form-label">Assign Vehicle</label>
-                            <select class="form-select" name="vehicleID" id="vehicleID" required>
-                                <option value="" selected>Select a vehicle</option>
-                                <!-- Options will be populated by JavaScript -->
+                            <label for="status" class="form-label">Update Status</label>
+                            <select class="form-select" name="newStatus">
+                                <option value="Booked">Booked</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label for="driverID" class="form-label">Assign Driver</label>
-                            <select class="form-select" name="driverID" id="driverID" required>
-                                <option value="" selected>Select a driver</option>
-                                <!-- Options will be populated by JavaScript -->
-                            </select>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-success">Book</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        </div>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
 </body>
 </html>

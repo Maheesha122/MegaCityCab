@@ -1,0 +1,7 @@
+127.0.0.1 - - [17/Mar/2025:21:30:15 +0530] "GET / HTTP/1.1" 404 752
+0:0:0:0:0:0:0:1 - - [17/Mar/2025:21:30:17 +0530] "GET /MegaCityCabs/ HTTP/1.1" 200 91
+0:0:0:0:0:0:0:1 - - [17/Mar/2025:21:30:18 +0530] "GET /MegaCityCabs/customer/home.jsp HTTP/1.1" 200 4154
+0:0:0:0:0:0:0:1 - - [17/Mar/2025:21:30:18 +0530] "GET /MegaCityCabs/images/vehicles_image.png HTTP/1.1" 200 823807
+0:0:0:0:0:0:0:1 - - [17/Mar/2025:21:30:18 +0530] "GET /MegaCityCabs/images/main.jpeg HTTP/1.1" 200 76183
+0:0:0:0:0:0:0:1 - - [17/Mar/2025:21:30:18 +0530] "GET /MegaCityCabs/images/logo.jpeg HTTP/1.1" 200 73105
+0:0:0:0:0:0:0:1 - - [17/Mar/2025:21:30:18 +0530] "GET /favicon.ico HTTP/1.1" 404 763

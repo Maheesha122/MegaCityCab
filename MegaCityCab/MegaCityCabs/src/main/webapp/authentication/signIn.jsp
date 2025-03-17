@@ -1,10 +1,11 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Mega City Cab</title>
-    <style> " this is my signin code. but when i log in, it doesn't go to the next page. why is that? 
+    <style>
         /* General Styles */
         body {
             font-family: Arial, sans-serif;
@@ -104,53 +105,56 @@
         }
     </style>
 </head>
+</head>
 <body>
     <!-- Logo -->
     <div class="logo">
-        <img src="images/logo.png" alt="Mega City Cab Logo">
+        <img src="${pageContext.request.contextPath}/images/logo.png" alt="Mega City Cab Logo">
     </div>
 
     <!-- Login Container -->
     <div class="login-container">
         <h2>Login</h2>
-        <form id="loginForm">
+        <form id="loginForm" action="${pageContext.request.contextPath}/signIn" method="post">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
-
+            
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
-
+            
             <button type="submit">Login</button>
         </form>
         <p class="signup-text">New Here? <a href="signUp.jsp">Sign Up</a></p>
     </div>
 
     <script>
-        // Function to handle form submission
         document.getElementById("loginForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent default form submission
 
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+            const formData = new FormData(this);
 
-            // Simulate login logic with dummy data for demonstration
-            // In a real-world scenario, you would send this data to the server for validation
-            if (email === "admin@example.com" && password === "admin123") {
-                // Simulate storing user information in sessionStorage or localStorage
-                sessionStorage.setItem('user_email', email);
-                sessionStorage.setItem('user_role', 'admin'); // Storing the role for role-based redirection
-
-                // Redirect to the admin dashboard
-                window.location.href = "admin/dashboard.jsp";
-            } else if (email === "customer@example.com" && password === "customer123") {
-                sessionStorage.setItem('user_email', email);
-                sessionStorage.setItem('user_role', 'customer'); // Storing the role for role-based redirection
-
-                // Redirect to the customer dashboard
-                window.location.href = "customer/home.jsp";
-            } else {
-                alert("Login failed. Please check your email and password.");
-            }
+            fetch(this.action, {
+                method: "POST",
+                body: new URLSearchParams(formData), // Convert FormData to URL-encoded format
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded" // Set the correct Content-Type
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log("Response from server:", data); // Debug log
+                if (data === "admin") {
+                    window.location.href = "${pageContext.request.contextPath}/admin/dashboard.jsp"; // Redirect to admin dashboard
+                } else if (data === "customer") {
+                    window.location.href = "${pageContext.request.contextPath}/customer/home.jsp"; // Redirect to customer dashboard
+                } else if (data === "failure") {
+                    alert("Login failed. Please check your email and password.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+            });
         });
     </script>
 </body>
